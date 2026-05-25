@@ -1,0 +1,13 @@
+/target
+/Cargo.lock.bak
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Claude Code / MCP / tooling artefacts
+.claude/
+.playwright-mcp/
