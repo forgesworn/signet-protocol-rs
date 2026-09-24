@@ -1,0 +1,67 @@
+# signet-protocol (Rust)
+
+> Native Rust apps that verify Signet identity events on Nostr have to
+> reimplement the NIP-01 canonical event id and the kind-21236 auth event
+> shape from scratch, and drift from the TypeScript reference. signet-protocol
+> is the Rust counterpart of the `signet-protocol` npm package: same wire
+> format, cross-impl test vectors, one source of truth.
+
+For engine and appliance authors who need Signet verification outside
+JavaScript: voxel games, embedded signing hardware, custom Nostr relays,
+native multiplayer servers. An event signed by the TypeScript
+`signet-protocol` package verifies here and vice versa.
+
+## Getting Started
+
+Not yet published to crates.io; depend on the repository:
+
+```toml
+[dependencies]
+signet-protocol = { git = "https://github.com/forgesworn/signet-protocol-rs" }
+```
+
+```rust
+use signet_protocol::{canonical_id, AUTH_EVENT_KIND};
+
+let pubkey = [0xbbu8; 32];
+let tags = vec![
+    vec!["challenge".to_string(), "a".repeat(64)],
+    vec!["origin".to_string(), "https://localhost:8094".to_string()],
+];
+let id = canonical_id(&pubkey, 1_700_000_000, AUTH_EVENT_KIND, &tags, "");
+```
+
+## Key Concepts
+
+- **Canonical event id**: the NIP-01 serialisation (compact JSON, lower-case
+  hex pubkey) hashed with SHA-256; the basis every verifier compares against
+  an event's `.id` field.
+- **Auth events (kind 21236)**: `Sign in with Signet` events, carrying a
+  `challenge` and `origin` tag pair that a server must check.
+- **Credentials (kind 31000)**: verifiable attestations (display-name,
+  age-scope, professional) sharing one kind, differentiated by a `type` tag.
+- **Cross-impl vectors**: the same test vectors run against the TypeScript
+  package, so the two implementations cannot silently diverge.
+
+## API Surface
+
+- `canonical_id(pubkey, created_at, kind, tags, content) -> [u8; 32]`: the
+  NIP-01 canonical event id.
+- `AUTH_EVENT_KIND`: `u32` constant, `21236`.
+- `CREDENTIAL_KIND`: `u32` constant, `31000`.
+- `SignetAuthEvent`: typed kind-21236 event struct (`pubkey`, `created_at`,
+  `kind`, `tags`, `content`, `id`, `sig`, `from_np`).
+- `SignetCredential`: typed kind-31000 credential struct (`pubkey`,
+  `created_at`, `kind`, `tags`, `content`, `id`, `sig`).
+
+Schnorr verification, full auth-event verification, credential verification
+and the server-side challenge nonce table are planned; not yet shipped.
+
+## Optional
+
+- [README](./README.md): install, status, and the case for a separate Rust
+  crate.
+- [Signet protocol](https://github.com/forgesworn/signet): the protocol this
+  crate implements.
+- [signet-protocol npm package](https://www.npmjs.com/package/signet-protocol):
+  the TypeScript counterpart with the identical wire format.
