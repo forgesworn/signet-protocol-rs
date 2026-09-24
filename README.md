@@ -1,21 +1,21 @@
 # signet-protocol — Rust
 
 [![CI](https://github.com/forgesworn/signet-protocol-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/forgesworn/signet-protocol-rs/actions/workflows/ci.yml)
-[![crates.io](https://img.shields.io/crates/v/signet-protocol)](https://crates.io/crates/signet-protocol)
-[![docs.rs](https://img.shields.io/docsrs/signet-protocol)](https://docs.rs/signet-protocol)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/TheCryptoDonkey?logo=githubsponsors&color=ea4aaa&label=Sponsor)](https://github.com/sponsors/TheCryptoDonkey)
 
 **Rust implementation of the [Signet](https://github.com/forgesworn/signet) identity protocol on Nostr.**
 
-Mirrors the [`signet-protocol`](https://www.npmjs.com/package/signet-protocol) npm package — the wire format is identical, and an event signed by the TypeScript side verifies here (and vice versa). Cross-impl equivalence is locked by test vectors.
+Mirrors the [`signet-protocol`](https://www.npmjs.com/package/signet-protocol) npm package. The wire format is identical, and the canonical event id computed here matches the TypeScript side, locked by shared test vectors. Signature verification is planned, not yet present.
 
 > Status: **0.1.x — core types + NIP-01 canonical event id shipped.** BIP-340 Schnorr verification, credential parsing, and the server-side challenge nonce table land in upcoming minors. The wire format is stable; the API surface above it will grow additively.
 
 ## Install
 
+Not yet published to crates.io. Depend on the repository, pinned to a commit:
+
 ```toml
 [dependencies]
-signet-protocol = "0.1"
+signet-protocol = { git = "https://github.com/forgesworn/signet-protocol-rs", rev = "4f42cc86c80674d575802ddb77d179b5318c9329" }
 ```
 
 ## Quick start
@@ -57,7 +57,7 @@ let id = canonical_id(&pubkey, 1_700_000_000, AUTH_EVENT_KIND, &tags, "");
 
 The Signet ecosystem's reference apps and SDKs are TypeScript today. Engine consumers — voxel games, embedded signing appliances, custom relays, native multiplayer servers — need verification on the Rust side, and currently re-implement the same primitives (NIP-01 canonical id, BIP-340 verify, kind-21236 shape) in each project. One crate, one source of truth, one set of test vectors.
 
-The wire format and verification rules match the TypeScript [`signet-protocol`](https://www.npmjs.com/package/signet-protocol) package exactly — these two crates are deliberate counterparts.
+The wire format matches the TypeScript [`signet-protocol`](https://www.npmjs.com/package/signet-protocol) package exactly, and the verification rules will follow it as they land; the two are deliberate counterparts.
 
 ## Licence
 

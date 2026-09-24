@@ -8,16 +8,16 @@
 
 For engine and appliance authors who need Signet verification outside
 JavaScript: voxel games, embedded signing hardware, custom Nostr relays,
-native multiplayer servers. An event signed by the TypeScript
-`signet-protocol` package verifies here and vice versa.
+native multiplayer servers. The canonical event id computed here matches the
+TypeScript `signet-protocol` package; signature verification is planned.
 
 ## Getting Started
 
-Not yet published to crates.io; depend on the repository:
+Not yet published to crates.io; depend on the repository, pinned to a commit:
 
 ```toml
 [dependencies]
-signet-protocol = { git = "https://github.com/forgesworn/signet-protocol-rs" }
+signet-protocol = { git = "https://github.com/forgesworn/signet-protocol-rs", rev = "4f42cc86c80674d575802ddb77d179b5318c9329" }
 ```
 
 ```rust

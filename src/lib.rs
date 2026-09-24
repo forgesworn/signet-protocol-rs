@@ -2,8 +2,8 @@
 //!
 //! Rust implementation of the [Signet](https://github.com/forgesworn/signet)
 //! identity protocol on Nostr. This crate is the Rust counterpart of the
-//! `signet-protocol` npm package; the wire format is identical and a kid's
-//! signed event verified here will verify identically on the TypeScript side.
+//! `signet-protocol` npm package; the wire format is identical and the
+//! canonical event id computed here matches the TypeScript side.
 //!
 //! ## Status
 //!
