@@ -20,6 +20,9 @@ Not yet published to crates.io; depend on the repository, pinned to a commit:
 signet-protocol = { git = "https://github.com/forgesworn/signet-protocol-rs", rev = "4f42cc86c80674d575802ddb77d179b5318c9329" }
 ```
 
+Minimum supported Rust version: 1.74 (the `rust-version` declared in
+`Cargo.toml`).
+
 ```rust
 use signet_protocol::{canonical_id, AUTH_EVENT_KIND};
 
@@ -29,6 +32,8 @@ let tags = vec![
     vec!["origin".to_string(), "https://localhost:8094".to_string()],
 ];
 let id = canonical_id(&pubkey, 1_700_000_000, AUTH_EVENT_KIND, &tags, "");
+// `id` is a raw [u8; 32]. hex::encode(id) (hex crate, not re-exported by this
+// crate) gives the lower-case hex string to compare with the event's `.id`.
 ```
 
 ## Key Concepts
@@ -45,14 +50,28 @@ let id = canonical_id(&pubkey, 1_700_000_000, AUTH_EVENT_KIND, &tags, "");
 
 ## API Surface
 
-- `canonical_id(pubkey, created_at, kind, tags, content) -> [u8; 32]`: the
-  NIP-01 canonical event id.
+- `canonical_id(pubkey: &[u8; 32], created_at: u32, kind: u32, tags: &[Vec<String>], content: &str) -> [u8; 32]`:
+  the NIP-01 canonical event id. `pubkey` is the raw 32-byte x-only key, not
+  hex. Hex-encode the result (for example `hex::encode(id)`) to compare with
+  a Nostr event's `.id` string.
 - `AUTH_EVENT_KIND`: `u32` constant, `21236`.
 - `CREDENTIAL_KIND`: `u32` constant, `31000`.
-- `SignetAuthEvent`: typed kind-21236 event struct (`pubkey`, `created_at`,
-  `kind`, `tags`, `content`, `id`, `sig`, `from_np`).
-- `SignetCredential`: typed kind-31000 credential struct (`pubkey`,
-  `created_at`, `kind`, `tags`, `content`, `id`, `sig`).
+- `SignetAuthEvent`: typed kind-21236 event struct. Fields: `pubkey: [u8; 32]`
+  (x-only Schnorr key), `created_at: u32` (Unix seconds), `kind: u32` (must
+  equal `AUTH_EVENT_KIND`), `tags: Vec<Vec<String>>` (must include
+  `["challenge", <hex>]` and `["origin", <str>]`), `content: String` (must be
+  empty for auth events), `id: [u8; 32]` (SHA-256 of the canonical
+  serialisation; recompute with `canonical_id`), `sig: [u8; 64]` (BIP-340
+  Schnorr signature over `id`; not verified by this crate), `from_np: bool`.
+- `from_np`: a client-asserted flag that the event was signed by a Natural
+  Person keypair; a server that rejects Natural Persons as players should
+  reject `true`.
+- `SignetCredential`: typed kind-31000 credential struct. Same fields and
+  types as `SignetAuthEvent` except there is no `from_np`.
+
+Structs are data only in 0.1: build them with struct literals. They derive
+`Clone` and `Debug` only; there is no constructor, parser or serde support
+yet, so deserialising JSON into them with `serde_json` will not compile.
 
 Schnorr verification, full auth-event verification, credential verification
 and the server-side challenge nonce table are planned; not yet shipped.
