@@ -36,7 +36,12 @@ tests/canonical_id_vectors.rs   cross-impl test vectors shared with the TS packa
 
 ## Common Pitfalls
 
-- Never trust an inbound event's `id` or `sig` field: recompute `id` via
-  `canonical_id` and re-check the signature.
+- 0.1.x has no signature verification and no `verify::*` module (planned,
+  not present). Recompute the id with `canonical_id` and compare the
+  `[u8; 32]` result with `SignetAuthEvent.id` or `SignetCredential.id`, or
+  hex-encode it (for example with the `hex` crate) to compare with a hex `id`
+  string from a Nostr event. Verify `sig` yourself (BIP-340 Schnorr, for
+  example with the `secp256k1` or `k256` crate) or treat the event as
+  unauthenticated. Never trust an inbound `id` or `sig` as given.
 - `tests/canonical_id_vectors.rs` vectors are shared with the TypeScript
   package; do not change expected values without updating both sides.
